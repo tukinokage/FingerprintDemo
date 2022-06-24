@@ -42,7 +42,7 @@ class SceretManager(){
                 val keyGenParametersBuilder = KeyGenParameterSpec.Builder(keystrokenames.keyalias, purpose)
                 generator.init(keyGenParametersBuilder
                     .setUserAuthenticationRequired(true)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
                     .build())
                 generator.generateKey()
@@ -50,6 +50,12 @@ class SceretManager(){
                 Log.e("aksERROR", e.toString())
                throw e
             }
+        }
+
+        fun hasKey(keystrokenames: KEYSTROKENAMES):Boolean{
+            val mKeyStore:KeyStore = KeyStore.getInstance("AndroidKeyStore")
+            val key = mKeyStore.getKey(keystrokenames.keyalias, null)
+            return key != null
         }
 
         //
@@ -65,7 +71,14 @@ class SceretManager(){
             key?.let {
 
                 /*AES分为几种模式，比如ECB，CBC，CFB等等，这些模式除了ECB由于没有使用IV而不太安全，其他模式差别并没有太明显，
-                大部分的区别在IV和KEY来计算密文的方法略有区别。*/
+                大部分的区别在IV和KEY来计算密文的方法略有区别。
+                ECB（Electronic CodeBook，电子密码本模式）、CBC（Cipher-block chaining，密码块连接模式）、
+                PCBC（Propagating cipher-block chaining，填充密码块链接模式）、
+                CFB（Cipher feedback，密文反馈模式）、
+                OFB（Output feedback，输出反馈模式）、
+                CTR（Counter mode，计数器模式）。
+                https://blog.csdn.net/u013073067/article/details/87086562
+                */
                 cipher =
                     Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
                             + KeyProperties.BLOCK_MODE_CBC + "/"
